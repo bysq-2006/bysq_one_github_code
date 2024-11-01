@@ -41,24 +41,25 @@ async def leetcode(bot: Bot,event: Event):
     await bot.send_private_msg(user_id=usebot_id,message=f"你有{int(hours)}小时 {int(minutes)}分钟 {int(seconds)}秒没有写题了。")
 w = on_command(cmd="start",priority=5)
 # #timestamp.txt需要提前创建一个，然后在里面随便打点数字，因为我没有做初始化
-leetcode_state:bool = True
+leetcode_state:bool = False
 @w.handle()
 async def leetcode(bot: Bot,event: Event):
     if(event.get_user_id() == str(usebot_id)):
         global leetcode_state
+        if leetcode_state:
+            await bot.send_private_msg(user_id=usebot_id,message="已经启动，请勿重复操作。")
+            return
         await bot.send_private_msg(user_id=usebot_id,message="已经启动。")
-        while leetcode_state:
-            leetcode_state = False
+        while True:
+            leetcode_state = True
             time_ = time.time()
             now = datetime.now()
             with open('timestamp.txt', 'r') as file:
                 time_read = float(file.read())
             if (time_ - time_read) > 259200:
                 await bot.send_private_msg(user_id=usebot_id,message="已经三天没有写算法了，今天必须写了，我会一直发，直到写了为止。")
-            elif (time_ - time_read) > 172800 and (datetime.now().hour == 12 and datetime.now().minute >= 30) or (datetime.now().hour == 13 and datetime.now().minute < 30):
+            elif (time_ - time_read) > 172800 and ((datetime.now().hour == 12 and datetime.now().minute >= 30) or (datetime.now().hour == 13 and datetime.now().minute < 30)):
                 await bot.send_private_msg(user_id=usebot_id,message="已经两天没有写算法了，快快快。")
-            elif (time_ - time_read) > 86400 and (datetime.now().hour == 12 and datetime.now().minute >= 30) or (datetime.now().hour == 13 and datetime.now().minute < 30):
+            elif (time_ - time_read) > 86400 and ((datetime.now().hour == 12 and datetime.now().minute >= 30) or (datetime.now().hour == 13 and datetime.now().minute < 30)):
                 await bot.send_private_msg(user_id=usebot_id,message="已经一天没有写算法了。")
             await asyncio.sleep(3600)  # 暂停 3600 秒后再进行下一次循环
-        else:
-            await bot.send_private_msg(user_id=usebot_id,message="已经启动，请勿重复操作。")
